@@ -4,8 +4,10 @@ import {
   resolveDefaultAgentId,
 } from "../../agents/agent-scope.js";
 import { installSkill } from "../../agents/skills-install.js";
+import { vetSkillEntry } from "../../agents/skills-vetting.js";
 import { buildWorkspaceSkillStatus } from "../../agents/skills-status.js";
 import { loadWorkspaceSkillEntries, type SkillEntry } from "../../agents/skills.js";
+import { resolveSkillKey } from "../../agents/skills/frontmatter.js";
 import { listAgentWorkspaceDirs } from "../../agents/workspace-dirs.js";
 import type { OpenClawConfig } from "../../config/config.js";
 import { loadConfig, writeConfigFile } from "../../config/config.js";
@@ -162,6 +164,34 @@ export const skillsHandlers: GatewayRequestHandlers = {
       env?: Record<string, string>;
     };
     const cfg = loadConfig();
+    if (p.enabled === true) {
+      const workspaceDir = resolveAgentWorkspaceDir(cfg, resolveDefaultAgentId(cfg));
+      const entries = loadWorkspaceSkillEntries(workspaceDir, { config: cfg });
+      const entry = entries.find(
+        (item) =>
+          resolveSkillKey(item.skill, item) === p.skillKey || item.skill.name === p.skillKey,
+      );
+      if (!entry) {
+        respond(
+          false,
+          undefined,
+          errorShape(ErrorCodes.INVALID_REQUEST, `Skill not found: ${p.skillKey}`),
+        );
+        return;
+      }
+      const vetting = await vetSkillEntry(entry);
+      if (!vetting.ok) {
+        respond(
+          false,
+          undefined,
+          errorShape(
+            ErrorCodes.INVALID_REQUEST,
+            vetting.blockReason ?? "Skill blocked by security scan.",
+          ),
+        );
+        return;
+      }
+    }
     const skills = cfg.skills ? { ...cfg.skills } : {};
     const entries = skills.entries ? { ...skills.entries } : {};
     const current = entries[p.skillKey] ? { ...entries[p.skillKey] } : {};

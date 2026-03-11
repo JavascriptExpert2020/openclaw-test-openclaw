@@ -1,6 +1,8 @@
 node_modules
 **/node_modules/
 .env
+.env.local
+.env.*.local
 docker-compose.extra.yml
 dist
 pnpm-lock.yaml
@@ -100,6 +102,11 @@ package-lock.json
 .agents
 .agent/
 skills-lock.json
+
+# Local workspace + config
+.openclaw-workspace/
+openclaw.local.json5
+openclaw.local.json5.bak
 
 # Local iOS signing overrides
 apps/ios/LocalSigning.xcconfig

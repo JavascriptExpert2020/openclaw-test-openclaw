@@ -1,3 +1,5 @@
+import type { SecretRef } from "../config/types.secrets.js";
+import { normalizeSecretInput } from "../utils/normalize-secret-input.js";
 import type { AuthProfileCredential, AuthProfileStore } from "./auth-profiles.js";
 import { normalizeProviderId } from "./model-selection.js";
 
@@ -12,18 +14,28 @@ export type PiOAuthCredential = {
 export type PiCredential = PiApiKeyCredential | PiOAuthCredential;
 export type PiCredentialMap = Record<string, PiCredential>;
 
+function resolveEnvSecretRef(ref?: SecretRef): string | undefined {
+  if (!ref || ref.source !== "env") {
+    return undefined;
+  }
+  const value = normalizeSecretInput(process.env[ref.id]);
+  return value ? value : undefined;
+}
+
 export function convertAuthProfileCredentialToPi(cred: AuthProfileCredential): PiCredential | null {
   if (cred.type === "api_key") {
-    const key = typeof cred.key === "string" ? cred.key.trim() : "";
-    if (!key) {
+    const key = normalizeSecretInput(cred.key);
+    const resolved = key || resolveEnvSecretRef(cred.keyRef);
+    if (!resolved) {
       return null;
     }
-    return { type: "api_key", key };
+    return { type: "api_key", key: resolved };
   }
 
   if (cred.type === "token") {
-    const token = typeof cred.token === "string" ? cred.token.trim() : "";
-    if (!token) {
+    const token = normalizeSecretInput(cred.token);
+    const resolved = token || resolveEnvSecretRef(cred.tokenRef);
+    if (!resolved) {
       return null;
     }
     if (
@@ -33,7 +45,7 @@ export function convertAuthProfileCredentialToPi(cred: AuthProfileCredential): P
     ) {
       return null;
     }
-    return { type: "api_key", key: token };
+    return { type: "api_key", key: resolved };
   }
 
   if (cred.type === "oauth") {

@@ -3,8 +3,8 @@ import path from "node:path";
 import type { OpenClawConfig } from "../config/config.js";
 import { resolveBrewExecutable } from "../infra/brew.js";
 import { runCommandWithTimeout, type CommandOptions } from "../process/exec.js";
-import { scanDirectoryWithSummary } from "../security/skill-scanner.js";
 import { resolveUserPath } from "../utils.js";
+import { vetSkillEntry } from "./skills-vetting.js";
 import { installDownloadSpec } from "./skills-install-download.js";
 import { formatInstallFailureMessage } from "./skills-install-output.js";
 import {
@@ -43,45 +43,16 @@ function withWarnings(result: SkillInstallResult, warnings: string[]): SkillInst
   };
 }
 
-function formatScanFindingDetail(
-  rootDir: string,
-  finding: { message: string; file: string; line: number },
-): string {
-  const relativePath = path.relative(rootDir, finding.file);
-  const filePath =
-    relativePath && relativePath !== "." && !relativePath.startsWith("..")
-      ? relativePath
-      : path.basename(finding.file);
-  return `${finding.message} (${filePath}:${finding.line})`;
-}
-
-async function collectSkillInstallScanWarnings(entry: SkillEntry): Promise<string[]> {
-  const warnings: string[] = [];
-  const skillName = entry.skill.name;
-  const skillDir = path.resolve(entry.skill.baseDir);
-
-  try {
-    const summary = await scanDirectoryWithSummary(skillDir);
-    if (summary.critical > 0) {
-      const criticalDetails = summary.findings
-        .filter((finding) => finding.severity === "critical")
-        .map((finding) => formatScanFindingDetail(skillDir, finding))
-        .join("; ");
-      warnings.push(
-        `WARNING: Skill "${skillName}" contains dangerous code patterns: ${criticalDetails}`,
-      );
-    } else if (summary.warn > 0) {
-      warnings.push(
-        `Skill "${skillName}" has ${summary.warn} suspicious code pattern(s). Run "openclaw security audit --deep" for details.`,
-      );
-    }
-  } catch (err) {
-    warnings.push(
-      `Skill "${skillName}" code safety scan failed (${String(err)}). Installation continues; run "openclaw security audit --deep" after install.`,
-    );
+async function enforceSkillSafety(entry: SkillEntry): Promise<{
+  ok: boolean;
+  warnings: string[];
+  message?: string;
+}> {
+  const result = await vetSkillEntry(entry);
+  if (!result.ok) {
+    return { ok: false, warnings: result.warnings, message: result.blockReason };
   }
-
-  return warnings;
+  return { ok: true, warnings: result.warnings };
 }
 
 function resolveInstallId(spec: SkillInstallSpec, index: number): string {
@@ -405,7 +376,20 @@ export async function installSkill(params: SkillInstallRequest): Promise<SkillIn
   }
 
   const spec = findInstallSpec(entry, params.installId);
-  const warnings = await collectSkillInstallScanWarnings(entry);
+  const safety = await enforceSkillSafety(entry);
+  if (!safety.ok) {
+    return withWarnings(
+      {
+        ok: false,
+        message: safety.message ?? `Blocked skill install: ${entry.skill.name}`,
+        stdout: "",
+        stderr: "",
+        code: null,
+      },
+      safety.warnings,
+    );
+  }
+  const warnings = safety.warnings;
   if (!spec) {
     return withWarnings(
       {

@@ -1,0 +1,51 @@
+{
+  "id": "model-router",
+  "name": "Model Router",
+  "description": "Routes simple prompts to a cheap model and escalates complex prompts to stronger models.",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "enabled": { "type": "boolean" },
+      "simpleModel": { "type": "string" },
+      "complexModel": { "type": "string" },
+      "veryComplexModel": { "type": "string" },
+      "complexChars": { "type": "integer", "minimum": 1 },
+      "veryComplexChars": { "type": "integer", "minimum": 1 },
+      "complexKeywords": {
+        "type": "array",
+        "items": { "type": "string" }
+      },
+      "veryComplexKeywords": {
+        "type": "array",
+        "items": { "type": "string" }
+      }
+    }
+  },
+  "uiHints": {
+    "enabled": {
+      "label": "Enable Router",
+      "help": "Turn model routing on/off without removing the plugin."
+    },
+    "simpleModel": {
+      "label": "Simple Model",
+      "help": "Cheap default model for short/simple prompts."
+    },
+    "complexModel": {
+      "label": "Complex Model",
+      "help": "Escalation model for multi-step reasoning."
+    },
+    "veryComplexModel": {
+      "label": "Very Complex Model",
+      "help": "Strongest model for deep reasoning or long prompts."
+    },
+    "complexChars": {
+      "label": "Complex Threshold (chars)",
+      "help": "Prompt length above this value triggers the complex model."
+    },
+    "veryComplexChars": {
+      "label": "Very Complex Threshold (chars)",
+      "help": "Prompt length above this value triggers the strongest model."
+    }
+  }
+}

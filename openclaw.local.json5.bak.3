@@ -1,0 +1,42 @@
+// OpenClaw local config for keyless development.
+{
+  gateway: {
+    mode: "local",
+  },
+  memory: {
+    backend: "builtin",
+    citations: "auto",
+  },
+  agents: {
+    defaults: {
+      workspace: "./.openclaw-workspace",
+      compaction: {
+        memoryFlush: {
+          enabled: true,
+        },
+      },
+      memorySearch: {
+        enabled: true,
+        provider: "local",
+        fallback: "none",
+        sources: ["memory"],
+        local: {
+          // Downloads the embedding model from Hugging Face on first run.
+          modelPath: "hf:ggml-org/embeddinggemma-300m-qat-q8_0-GGUF/embeddinggemma-300m-qat-Q8_0.gguf",
+        },
+      },
+    },
+  },
+  hooks: {
+    internal: {
+      enabled: true,
+      entries: {
+        "session-memory": {
+          enabled: true,
+          // Capture recent turns when /new or /reset is issued.
+          messages: 15,
+        },
+      },
+    },
+  },
+}

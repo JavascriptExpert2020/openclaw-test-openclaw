@@ -72,7 +72,7 @@ describe("installSkill code safety scanning", () => {
     });
   });
 
-  it("adds detailed warnings for critical findings and continues install", async () => {
+  it("blocks install when critical findings are detected", async () => {
     await withWorkspaceCase(async ({ workspaceDir }) => {
       const skillDir = await writeInstallableSkill(workspaceDir, "danger-skill");
       scanDirectoryWithSummaryMock.mockResolvedValue({
@@ -98,15 +98,13 @@ describe("installSkill code safety scanning", () => {
         installId: "deps",
       });
 
-      expect(result.ok).toBe(true);
-      expect(result.warnings?.some((warning) => warning.includes("dangerous code patterns"))).toBe(
-        true,
-      );
-      expect(result.warnings?.some((warning) => warning.includes("runner.js:1"))).toBe(true);
+      expect(result.ok).toBe(false);
+      expect(result.message).toContain("Blocked skill");
+      expect(result.message).toContain("runner.js:1");
     });
   });
 
-  it("warns and continues when skill scan fails", async () => {
+  it("blocks install when skill scan fails", async () => {
     await withWorkspaceCase(async ({ workspaceDir }) => {
       await writeInstallableSkill(workspaceDir, "scanfail-skill");
       scanDirectoryWithSummaryMock.mockRejectedValue(new Error("scanner exploded"));
@@ -117,13 +115,8 @@ describe("installSkill code safety scanning", () => {
         installId: "deps",
       });
 
-      expect(result.ok).toBe(true);
-      expect(result.warnings?.some((warning) => warning.includes("code safety scan failed"))).toBe(
-        true,
-      );
-      expect(result.warnings?.some((warning) => warning.includes("Installation continues"))).toBe(
-        true,
-      );
+      expect(result.ok).toBe(false);
+      expect(result.message).toContain("code safety scan failed");
     });
   });
 });

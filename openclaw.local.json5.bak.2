@@ -1,0 +1,55 @@
+{
+  agents: {
+    defaults: {
+      workspace: "D:/---------Nucleus Projects-----/open-claw test/openclaw/.openclaw-workspace",
+      memorySearch: {
+        enabled: true,
+        query: { hybrid: { enabled: false } },
+        sources: ["memory"],
+        provider: "local",
+        fallback: "none",
+        local: {
+          modelPath: "hf:ggml-org/embeddinggemma-300m-qat-q8_0-GGUF/embeddinggemma-300m-qat-Q8_0.gguf",
+        },
+      },
+      compaction: {
+        mode: "safeguard",
+        memoryFlush: {
+          enabled: true,
+        },
+      },
+    },
+  },
+  commands: {
+    native: "auto",
+    nativeSkills: "auto",
+    restart: true,
+    ownerDisplay: "raw",
+  },
+  hooks: {
+    internal: {
+      enabled: true,
+      entries: {
+        "session-memory": {
+          enabled: true,
+          messages: 15,
+        },
+      },
+    },
+  },
+  gateway: {
+    mode: "local",
+    auth: {
+      mode: "token",
+      token: "e48ee44118249d08cd2bd92055b00cbb3a343fcac6107e51",
+    },
+  },
+  memory: {
+    backend: "builtin",
+    citations: "auto",
+  },
+  meta: {
+    lastTouchedVersion: "2026.3.8",
+    lastTouchedAt: "2026-03-09T15:21:31.110Z",
+  },
+}
