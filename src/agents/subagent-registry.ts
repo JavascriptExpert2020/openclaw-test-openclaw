@@ -865,7 +865,7 @@ async function finalizeSubagentCleanup(
       await safeRemoveAttachmentsDir(entry);
     }
     if (cleanup === "delete") {
-      entry.frozenResultText = undefined;
+      entry.frozenResultText = undefined
       entry.frozenResultCapturedAt = undefined;
     }
     completeCleanupBookkeeping({
