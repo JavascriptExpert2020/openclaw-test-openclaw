@@ -8,6 +8,7 @@ import { vetSkillEntry } from "../../agents/skills-vetting.js";
 import { buildWorkspaceSkillStatus } from "../../agents/skills-status.js";
 import { loadWorkspaceSkillEntries, type SkillEntry } from "../../agents/skills.js";
 import { resolveSkillKey } from "../../agents/skills/frontmatter.js";
+import { bumpSkillsSnapshotVersion } from "../../agents/skills/refresh.js";
 import { listAgentWorkspaceDirs } from "../../agents/workspace-dirs.js";
 import type { OpenClawConfig } from "../../config/config.js";
 import { loadConfig, writeConfigFile } from "../../config/config.js";
@@ -229,6 +230,8 @@ export const skillsHandlers: GatewayRequestHandlers = {
       skills,
     };
     await writeConfigFile(nextConfig);
+    const workspaceDir = resolveAgentWorkspaceDir(cfg, resolveDefaultAgentId(cfg));
+    bumpSkillsSnapshotVersion({ workspaceDir, reason: "manual" });
     respond(true, { ok: true, skillKey: p.skillKey, config: current }, undefined);
   },
 };

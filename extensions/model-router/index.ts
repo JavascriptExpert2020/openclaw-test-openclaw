@@ -129,7 +129,7 @@ export default function register(api: OpenClawPluginApi) {
         return undefined;
       }
 
-      const prompt = (event.prompt || "").trim();
+      const prompt = typeof event.prompt === "string" ? event.prompt.trim() : "";
       if (!prompt) {
         return undefined;
       }
@@ -153,7 +153,13 @@ export default function register(api: OpenClawPluginApi) {
         return undefined;
       }
 
-      return { modelOverride: modelOverride.trim() };
+      const routeTag = isVeryComplex ? "very-complex" : isComplex ? "complex" : "simple";
+      const modelOverrideTrimmed = modelOverride.trim();
+      api.logger.warn(
+        `model-router: selected model (${routeTag}) -> ${modelOverrideTrimmed} (promptChars=${prompt.length})`,
+      );
+
+      return { modelOverride: modelOverrideTrimmed };
     },
     { priority: 50 },
   );

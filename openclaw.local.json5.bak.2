@@ -1,55 +1,166 @@
 {
-  agents: {
-    defaults: {
-      workspace: "D:/---------Nucleus Projects-----/open-claw test/openclaw/.openclaw-workspace",
-      memorySearch: {
-        enabled: true,
-        query: { hybrid: { enabled: false } },
-        sources: ["memory"],
-        provider: "local",
-        fallback: "none",
-        local: {
-          modelPath: "hf:ggml-org/embeddinggemma-300m-qat-q8_0-GGUF/embeddinggemma-300m-qat-Q8_0.gguf",
-        },
-      },
-      compaction: {
-        mode: "safeguard",
-        memoryFlush: {
-          enabled: true,
-        },
-      },
-    },
+  "meta": {
+    "lastTouchedVersion": "2026.3.8",
+    "lastTouchedAt": "2026-03-14T00:02:23.007Z"
   },
-  commands: {
-    native: "auto",
-    nativeSkills: "auto",
-    restart: true,
-    ownerDisplay: "raw",
+  "wizard": {
+    "lastRunAt": "2026-03-11T10:18:37.638Z",
+    "lastRunVersion": "2026.3.8",
+    "lastRunCommand": "onboard",
+    "lastRunMode": "local"
   },
-  hooks: {
-    internal: {
-      enabled: true,
-      entries: {
+  "auth": {
+    "profiles": {
+      "openrouter:default": {
+        "provider": "openrouter",
+        "mode": "api_key"
+      }
+    }
+  },
+  "agents": {
+    "defaults": {
+      "model": {
+        "primary": "openrouter/google/gemini-2.5-flash-lite",
+        "fallbacks": [
+          "openrouter/google/gemini-2.0-flash-001"
+        ]
+      },
+      "imageModel": {
+        "primary": "openrouter/google/gemini-2.5-flash-image",
+        "fallbacks": [
+          "openrouter/google/gemini-2.5-flash-image"
+        ]
+      },
+      "models": {
+        "openrouter/auto": {
+          "alias": "OpenRouter"
+        }
+      },
+      "workspace": "D:\\---------Nucleus Projects-----\\open-claw test\\openclaw\\.openclaw-workspace",
+      "memorySearch": {
+        "enabled": true,
+        "sources": [
+          "memory"
+        ],
+        "provider": "local",
+        "fallback": "none",
+        "local": {
+          "modelPath": "hf:ggml-org/embeddinggemma-300m-qat-q8_0-GGUF/embeddinggemma-300m-qat-Q8_0.gguf"
+        },
+        "query": {
+          "hybrid": {
+            "enabled": false
+          }
+        }
+      },
+      "compaction": {
+        "mode": "safeguard",
+        "memoryFlush": {
+          "enabled": true
+        }
+      }
+    }
+  },
+  "tools": {
+    "profile": "coding",
+    "deny": [
+      "write",
+      "edit",
+      "apply_patch"
+    ]
+  },
+  "commands": {
+    "native": "auto",
+    "nativeSkills": "auto",
+    "restart": true,
+    "ownerDisplay": "raw"
+  },
+  "session": {
+    "dmScope": "per-channel-peer"
+  },
+  "hooks": {
+    "internal": {
+      "enabled": true,
+      "entries": {
         "session-memory": {
-          enabled: true,
-          messages: 15,
-        },
+          "enabled": true,
+          "messages": 15
+        }
+      }
+    }
+  },
+  "channels": {
+    "telegram": {
+      "enabled": true,
+      "dmPolicy": "open",
+      "botToken": "8795468183:AAG0kKQOGItLIz2PY47KguoK_Hcac0W7HEs",
+      "allowFrom": [
+        "*"
+      ],
+      "groupPolicy": "allowlist",
+      "streaming": "partial"
+    }
+  },
+  "gateway": {
+    "port": 18789,
+    "mode": "local",
+    "bind": "loopback",
+    "auth": {
+      "mode": "token",
+      "token": "c783b84f35c73a24df3e10a3cf66e9c9d116608836150200"
+    },
+    "tailscale": {
+      "mode": "off",
+      "resetOnExit": false
+    },
+    "remote": {
+      "url": "ws://127.0.0.1:18789",
+      "token": "c783b84f35c73a24df3e10a3cf66e9c9d116608836150200"
+    }
+  },
+  "memory": {
+    "backend": "builtin",
+    "citations": "auto"
+  },
+  "skills": {
+    "install": {
+      "nodeManager": "npm"
+    },
+    "entries": {
+      "ghl-crm": {
+        "enabled": true
       },
+      "bookkeeping": {
+        "enabled": false
+      },
+      "evil-skill": {
+        "enabled": false
+      },
+      "smb-growth": {
+        "enabled": true
+      },
+      "imsg": {
+        "enabled": true
+      }
+    }
+  },
+  "plugins": {
+    "load": {
+      "paths": [
+        "D:\\---------Nucleus Projects-----\\open-claw test\\openclaw\\extensions\\model-router"
+      ]
     },
-  },
-  gateway: {
-    mode: "local",
-    auth: {
-      mode: "token",
-      token: "e48ee44118249d08cd2bd92055b00cbb3a343fcac6107e51",
-    },
-  },
-  memory: {
-    backend: "builtin",
-    citations: "auto",
-  },
-  meta: {
-    lastTouchedVersion: "2026.3.8",
-    lastTouchedAt: "2026-03-09T15:21:31.110Z",
-  },
+    "entries": {
+      "model-router": {
+        "enabled": true,
+        "config": {
+          "simpleModel": "google/gemini-2.5-flash-lite",
+          "complexModel": "anthropic/claude-sonnet-4.6",
+          "veryComplexModel": "anthropic/claude-opus-4.6",
+          "complexChars": 280,
+          "veryComplexChars": 700
+        }
+      }
+    }
+  }
 }
