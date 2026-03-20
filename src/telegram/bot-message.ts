@@ -16,6 +16,7 @@ type TelegramMessageProcessorDeps = Omit<
   BuildTelegramMessageContextParams,
   "primaryCtx" | "allMedia" | "storeAllowFrom" | "options"
 > & {
+  getConfig?: () => BuildTelegramMessageContextParams["cfg"];
   telegramCfg: TelegramAccountConfig;
   runtime: RuntimeEnv;
   replyToMode: ReplyToMode;
@@ -29,6 +30,7 @@ export const createTelegramMessageProcessor = (deps: TelegramMessageProcessorDep
     bot,
     cfg,
     account,
+    getConfig,
     telegramCfg,
     historyLimit,
     groupHistories,
@@ -55,6 +57,7 @@ export const createTelegramMessageProcessor = (deps: TelegramMessageProcessorDep
     options?: { messageIdOverride?: string; forceWasMentioned?: boolean },
     replyMedia?: TelegramMediaRef[],
   ) => {
+    const liveCfg = getConfig ? getConfig() : cfg;
     const context = await buildTelegramMessageContext({
       primaryCtx,
       allMedia,
@@ -62,7 +65,7 @@ export const createTelegramMessageProcessor = (deps: TelegramMessageProcessorDep
       storeAllowFrom,
       options,
       bot,
-      cfg,
+      cfg: liveCfg,
       account,
       historyLimit,
       groupHistories,
@@ -83,7 +86,7 @@ export const createTelegramMessageProcessor = (deps: TelegramMessageProcessorDep
       await dispatchTelegramMessage({
         context,
         bot,
-        cfg,
+        cfg: liveCfg,
         runtime,
         replyToMode,
         streamMode,

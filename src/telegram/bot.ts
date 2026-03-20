@@ -395,6 +395,7 @@ export function createTelegramBot(opts: TelegramBotOptions) {
     bot,
     cfg,
     account,
+    getConfig: () => loadConfig(),
     telegramCfg,
     historyLimit,
     groupHistories,
