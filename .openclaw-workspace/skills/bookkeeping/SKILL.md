@@ -31,6 +31,7 @@ Purpose: Extract vendor/date/amount from a receipt image, ask for category, appe
 - Use the configured Google Sheet every time.
 - After the user provides the category, append immediately via the backend API.
 - Do NOT write local files (CSV/JSON). If you cannot reach the backend, say so.
+- If the backend responds 403 or mentions "disabled", tell the user the bookkeeping skill is disabled in the admin portal and stop.
 
 ## Implementation note
 
